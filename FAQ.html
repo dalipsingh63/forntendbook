@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aravali Publication - FAQ</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="responsive.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(to right, #f8f9fa, #e3f2fd);
+            color: #333;
+        }
+
+        .container {
+            max-width: 700px;
+            /* background: #f1f7fc; */
+            padding: 25px;
+            border-radius: 12px;
+        }
+
+        .navbar {
+            margin-top: 13px;
+        }
+
+        h1 {
+            text-align: center;
+            color: #007bff;
+            margin-bottom: 20px;
+        }
+
+        .faq-item {
+            margin-bottom: 15px;
+            padding: 15px;
+            background: #f1f8ff;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .faq-item:hover {
+            background: #dbeafe;
+        }
+
+        .faq-question {
+            font-weight: bold;
+            color: #0056b3;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .faq-answer {
+            display: none;
+            margin-top: 10px;
+            color: #555;
+        }
+
+        .toggle-icon {
+            font-size: 18px;
+            transition: transform 0.3s ease;
+        }
+
+        .faq-item.active .faq-answer {
+            display: block;
+        }
+
+        .faq-item.active .toggle-icon {
+            transform: rotate(180deg);
+        }
+    </style>
+</head>
+
+<body>
+    <div class="col-sm-12 navbar">
+        <div class="col-sm-3 navbar-main">
+            <a href="index.html">
+                <div class="navbar-polygon">
+                    <img class="logo " src="./images/aravali_publication-removebg-preview.png" alt="">
+                </div>
+            </a>
+            <div class="navbar-poly"></div>
+        </div>
+        <div class="menu-toggle">
+            <i class="fas fa-bars"></i>
+        </div>
+        <div class="col-sm-3  nav-items">
+            <ul>
+                <li><i class="fa-solid fa-house"></i>Home</li>
+                <a href="top seller.html">
+                    <li id="categoryBtn"><i class="fa-solid fa-list"></i>Category</li>
+                </a>
+                <li><i class="fa-regular fa-bookmark"></i>Top Seller</li>
+
+            </ul>
+        </div>
+        <div class="col-sm-3 search-container">
+            <input type="text" class="searchbar" placeholder="Search for books...">
+            <i id="searchicon" class="fas fa-search search-icon"></i>
+        </div>
+
+        <div class="col-sm-3 contactsupport">
+            <button class="SignUp"><i class="fas fa-user-plus"></i></button>
+
+            <a href="./cart.html">
+                <button class="Cart">
+                    <i class="fas fa-shopping-cart"></i>
+                    <span id="cart-count">0</span>
+                </button>
+            </a>
+        </div>
+    </div>
+
+    <div class="container">
+        <h1>Frequently Asked Questions</h1>
+
+        <div class="faq-item" onclick="toggleFAQ(this)">
+            <div class="faq-question">1. What is Aravali Publication? <span class="toggle-icon">▼</span></div>
+            <div class="faq-answer">Aravali Publication is a reputed publishing house that publishes high-quality books.
+            </div>
+        </div>
+
+        <div class="faq-item" onclick="toggleFAQ(this)">
+            <div class="faq-question">2. How can I purchase books? <span class="toggle-icon">▼</span></div>
+            <div class="faq-answer">You can buy our books from the official website and our bookstores.</div>
+        </div>
+
+        <div class="faq-item" onclick="toggleFAQ(this)">
+            <div class="faq-question">3. Is Cash on Delivery (COD) available? <span class="toggle-icon">▼</span></div>
+            <div class="faq-answer">Yes, COD is available for selected locations.</div>
+        </div>
+
+        <div class="faq-item" onclick="toggleFAQ(this)">
+            <div class="faq-question">4. How can I contact customer support? <span class="toggle-icon">▼</span></div>
+            <div class="faq-answer">You can contact us via email or phone: <a
+                    href="mailto:AravalipublicationA@gmail.com">AravalipublicationA@gmail.com</a> | <a
+                    href="tel:+919358087121">+919358087121</a></div>
+        </div>
+    </div>
+
+    <script>
+        function toggleFAQ(element) {
+            element.classList.toggle("active");
+        }
+    </script>
+</body>
+
+</html>

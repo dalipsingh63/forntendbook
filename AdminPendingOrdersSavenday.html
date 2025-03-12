@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pending Orders Alert</title>
+    <style>
+          /* General body styling */
+          body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #f4f6f9;
+            text-align: center;
+        }
+
+        /* Header styling */
+        h1 {
+            color: #005f5f; /* Main color */
+            font-size: 32px;
+            margin-bottom: 20px;
+        }
+
+        /* Label and input styling */
+        label {
+            font-size: 16px;
+            margin-right: 10px;
+        }
+
+        input[type="date"] {
+            padding: 8px;
+            font-size: 16px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+            margin-bottom: 20px;
+            transition: border-color 0.3s;
+        }
+
+        input[type="date"]:focus {
+            border-color: #005f5f; /* Main color */
+        }
+
+        /* Table styling */
+        table {
+            width: 80%;
+            margin: 20px auto;
+            border-collapse: collapse;
+        }
+
+        th, td {
+            padding: 12px 15px;
+            border: 1px solid #ddd;
+            text-align: left;
+            font-size: 16px;
+        }
+
+        th {
+            background-color: #005f5f; /* Main color */
+            color: white;
+        }
+
+        td {
+            background-color: #fff;
+        }
+
+        /* Button styling for updating order */
+        button {
+            background-color: #005f5f; /* Main color */
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            margin-left: 10px;
+            transition: background-color 0.3s ease;
+        }
+
+        button:hover {
+            background-color: #004d4d; /* Darker shade of main color */
+        }
+
+        /* Select box styling */
+        select {
+            padding: 6px;
+            font-size: 14px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+            margin-right: 10px;
+        }
+
+        select:focus {
+            border-color: #005f5f; /* Main color */
+        }
+
+        header {
+            background-color: #008080;
+            color: white;
+            padding: 20px;
+            text-align: center;
+            font-weight: 600;
+            display: flex;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s;
+            height: auto;
+            border-bottom: 1px solid;
+        }
+
+        header h1 {
+            margin: 31px 0 0 313px;
+        }
+
+        .sidebar {
+            width: 250px;
+            background: #008080;
+            color: white;
+            padding: 20px;
+            position: absolute;
+            height: 100%;
+        }
+
+        .sidebar ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        .sidebar ul li {
+            margin: 15px 0;
+        }
+
+        .sidebar ul li a {
+            text-decoration: none;
+            color: white;
+            display: block;
+            padding: 10px;
+            border-radius: 5px;
+            transition: 0.3s;
+        }
+
+        .sidebar ul li a:hover {
+            background: #1abc9c;
+        }
+
+        /* logo container */
+        .logo-container {
+            display: flex;
+            margin: 0 43px;
+        }
+
+        .imglogo {
+            width: 100px;
+            height: auto;
+            background-color: white;
+            margin: 0 9px;
+            border-radius: 10px;
+        }
+
+        .logo-container h2 {
+            margin-top: 38px;
+        }
+        .sidebar-toggle{
+            display: none;
+        }
+        /* deshboards */
+        .main-content {
+            margin-left: 270px;
+            padding: 20px;
+            width: calc(100% - 270px);
+        }
+
+    </style>
+</head>
+<body>
+
+    <h1>Orders Pending for More Than 7 Days</h1>
+    <div>
+        <button onclick="fetchPendingOrders()">Refresh List</button>
+    </div>
+
+    <h2>Pending Orders</h2>
+    <table id="orderTable" style="display: none;">
+        <thead>
+            <tr>
+                <th>Order ID</th>
+                <th>Customer</th>
+                <th>Status</th>
+                <th>Pending Since</th>
+                <th>Update Status</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody id="orderBody"></tbody>
+    </table>
+
+    <script>
+        async function fetchPendingOrders() {
+            try {
+                const res = await fetch('/api/admin/pending-orders');
+                const data = await res.json();
+
+                if (data.length === 0) {
+                    alert("No pending orders older than 7 days.");
+                    document.getElementById("orderTable").style.display = "none";
+                    return;
+                }
+
+                const orderBody = document.getElementById("orderBody");
+                orderBody.innerHTML = "";
+
+                data.forEach(order => {
+                    const row = `<tr>
+                        <td>${order._id}</td>
+                        <td>${order.deliveryDetails?.fullName || "N/A"} (${order.deliveryDetails?.mobile || "N/A"})</td>
+                        <td>${order.status}</td>
+                        <td>${order.pendingSince ? new Date(order.pendingSince).toLocaleDateString() : "Unknown"}</td>
+                        <td>
+                            <select id="status-${order._id}">
+                                <option value="Pending" ${order.status === "Pending" ? "selected" : ""}>Pending</option>
+                                <option value="Shipped">Shipped</option>
+                                <option value="Delivered">Delivered</option>
+                                <option value="Cancelled">Cancelled</option>
+                            </select>
+                            <button onclick="updateOrderStatus('${order._id}')">Update</button>
+                        </td>
+                        <td>
+                            <button onclick="deleteOrder('${order._id}')" style="background-color: red;">Delete</button>
+                        </td>
+                    </tr>`;
+                    orderBody.innerHTML += row;
+                });
+
+                document.getElementById("orderTable").style.display = "table";
+                document.getElementById("orderTable").style.opacity = "1";
+                document.getElementById("orderTable").style.transform = "translateY(0)";
+            } catch (error) {
+                console.error("Error fetching pending orders:", error);
+            }
+        }
+
+        async function updateOrderStatus(orderId) {
+            const newStatus = document.getElementById(`status-${orderId}`).value;
+
+            try {
+                const res = await fetch("/api/update-order-status", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ orderId, status: newStatus })
+                });
+
+                const data = await res.json();
+                alert(data.message);
+                fetchPendingOrders();
+            } catch (error) {
+                console.error("Error updating order status:", error);
+            }
+        }
+
+        async function deleteOrder(orderId) {
+            if (!confirm("Are you sure you want to delete this order?")) return;
+
+            try {
+                const res = await fetch(`/api/admin-delete-order/${orderId}`, { method: "DELETE" });
+                const data = await res.json();
+
+                if (data.success) {
+                    alert("Order deleted successfully.");
+                    fetchPendingOrders();
+                } else {
+                    alert("Failed to delete order.");
+                }
+            } catch (error) {
+                console.error("Error deleting order:", error);
+            }
+        }
+
+        fetchPendingOrders();
+    </script>
+</body>
+</html>

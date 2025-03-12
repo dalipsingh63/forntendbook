@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Panel</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        /* General styles */
+        body {
+            font-family: 'Poppins', sans-serif;
+            margin: 0;
+            padding: 0;
+            height: 100vh;
+            background: #f4f4f4;
+            overflow-x: hidden;
+        }
+
+        header {
+            background-color: #008080;
+            color: white;
+            padding: 20px;
+            text-align: center;
+            font-weight: 600;
+            display: flex;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            height: auto;
+            border-bottom: 1px solid;
+            position: fixed; /* Fix header to top */
+            width: 100%; /* Ensure header spans full width */
+            top: 0;
+            left: 0;
+            z-index: 10; /* Ensure header stays on top */
+        }
+
+        header h1 {
+            margin-left: 100px;
+            flex-grow: 1;
+        }
+
+        .sidebar {
+    width: 250px;
+    background: #008080;
+    color: white;
+    padding: 20px;
+    position: fixed;
+    height: 100%;
+    top: 0;
+    left: 0;
+    transition: all 0.3s ease;
+    z-index: 5;
+    margin-top: 80px; 
+    overflow-y: auto; /* Yahan scrolling enable kar diya */
+    max-height: calc(100vh - 80px); /* Sidebar ko header se adjust kar diya */
+}
+
+
+        .sidebar ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        .sidebar ul li {
+            margin: 15px 0;
+        }
+
+        .sidebar ul li a {
+            text-decoration: none;
+            color: white;
+            display: block;
+            padding: 10px;
+            border-radius: 5px;
+            transition: 0.3s;
+        }
+
+        .sidebar ul li a:hover {
+            background: #1abc9c;
+        }
+
+        .logo-container {
+            display: flex;
+            margin-bottom: 20px;
+        }
+
+        .sidebar-toggle{
+            display: none;
+        }
+
+        .imglogo {
+            width: 100px;
+            height: auto;
+            background-color: white;
+            margin: 0 9px;
+            border-radius: 10px;
+        }
+
+        .logo-container h2 {
+            margin-top: 38px;
+        }
+
+        .main-content {
+            margin-left: 270px;
+            padding: 20px;
+            width: calc(100% - 270px);
+            transition: margin-left 0.3s ease;
+            margin-top: 80px; /* Adjust content to account for fixed header */
+        }
+
+        section {
+            background: white;
+            padding: 20px;
+            margin-bottom: 20px;
+            border-radius: 8px;
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        h3 {
+            font-size: 22px;
+            font-weight: bold;
+            color: #008080;
+        }
+
+        input, button, textarea, select {
+            display: block;
+            width: 100%;
+            margin-top: 10px;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+
+        button {
+            background: #008080;
+            color: white;
+            border: none;
+            cursor: pointer;
+            transition: 0.3s;
+            width: 120px;
+        }
+
+        button:hover {
+            background: linear-gradient(to right, #008080, #20B2AA);
+        }
+
+        p {
+            margin-top: 10px;
+            font-weight: bold;
+        }
+
+        #dashboard canvas {
+            width: 100% !important;
+            height: 300px !important;
+        }
+
+        /* Responsive Styles */
+        @media (max-width: 768px) {
+            header h1 {
+                margin-left: 20px;
+                font-size: 20px;
+            }
+
+            .sidebar {
+                width: 100%;
+                position: relative;
+                height: auto;
+                box-shadow: none;
+                display: none;
+            }
+
+            .sidebar ul li {
+                margin: 10px 0;
+            }
+
+            .sidebar ul li a {
+                padding: 15px;
+            }
+
+            .main-content {
+                margin-left: 0;
+                width: 100%;
+            }
+
+            .imglogo {
+                width: 80px;
+                margin-left: 30px;
+            }
+
+            .sidebar-toggle {
+                display: block;
+                font-size: 28px;
+                color: white;
+                cursor: pointer;
+                position: absolute;
+                top: 20px;
+                left: 20px;
+            }
+
+            .sidebar.open {
+                display: block;
+            }
+
+            .main-content section {
+                margin-bottom: 15px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            header h1 {
+                font-size: 18px;
+            }
+
+            button {
+                width: 100px;
+            }
+
+            .sidebar ul li a {
+                padding: 12px;
+            }
+
+            .main-content section {
+                padding: 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <img class="imglogo" src="./images/aravali_publication-removebg-preview.png" alt="">
+        <h1> Aravali Publication Bookstore</h1>
+        <i class="fas fa-bars sidebar-toggle" onclick="toggleSidebar()"></i>
+    </header>
+
+    <div class="sidebar">
+        <div class="logo-container">
+            <h2>Admin Panel </h2>
+        </div>
+        <ul> 
+            <!-- <li><a href="Admin-panel.html" onclick="showSection('dashboard')">Dashboard</a></li> -->
+            <!-- <li><a href="Admin-panel.html" onclick="showSection('banner')">Manage Banners</a></li>
+            <li><a href="Admin-panel.html" onclick="showSection('books')">Manage Books</a></li> -->
+            <li><a href="orderAdmin-analytics.html" onclick="showSection('orderAdmin-analytics')">Order Analytics</a></li>
+            <li><a href="Admin order summery.html" onclick="showSection('orderSummary')">Order Summary</a></li>
+            <li><a href="admin-all-ordersWithUpdate.html" onclick="showSection('allOrdersWithUpdate')">All Orders with Update</a></li>
+            <li><a href="AdminBookDelete.html" onclick="showSection('bookDelete')">Delete Book</a></li>
+            <li><a href="AdminPendingOrdersSavenday.html" onclick="showSection('pendingOrders')">Pending Orders</a></li>
+            <li><a href="BenerAdmin.html" onclick="showSection('bannerAdmin')">Manage Banner</a></li>
+            <li><a href="uploadcsv.html" onclick="showSection('uploadCSV')">Upload CSV</a></li>
+        </ul>
+    </div>
+
+    <div class="main-content">
+        <section id="dashboard" class="section">
+            <h3>Dashboard</h3>
+            <canvas id="myChart"></canvas>
+        </section>
+        
+        <section id="banner" class="section" style="display: none;">
+            <h3>Upload Banner</h3>
+            <input type="file" id="bannerUpload">
+            <button onclick="uploadBanner()">Upload</button>
+            <p id="bannerMsg"></p>
+        </section>
+        
+        <h1>Upload New Book</h1>
+        <form id="book-form">
+            <input type="text" id="title" placeholder="Book Title" required>
+            <input type="text" id="author" placeholder="Author" required>
+            <input type="number" id="price" placeholder="Price" required>
+            <input type="number" id="offerPrice" placeholder="Offer Price">
+            <textarea id="description" placeholder="Description"></textarea>
+    
+            <select id="category" required>
+                <option value="New">New</option>
+                <option value="Old">Old</option>
+                <option value="All">All</option>
+            </select>
+    
+            <input type="file" id="bookImage" required>
+            <button type="submit">Upload</button>
+        </form>
+    </div>
+
+    <script>
+        function showSection(sectionId) {
+            document.querySelectorAll('.section').forEach(section => {
+                section.style.display = 'none';
+            });
+            document.getElementById(sectionId).style.display = 'block';
+        }
+
+        function uploadBanner() {
+            const banner = document.getElementById('bannerUpload').files[0];
+            document.getElementById('bannerMsg').innerText = banner ? "Banner uploaded successfully!" : "Please select a banner to upload.";
+        }
+
+        document.getElementById("book-form").addEventListener("submit", async (e) => {
+            e.preventDefault();
+            const formData = new FormData();
+            formData.append("title", document.getElementById("title").value);
+            formData.append("author", document.getElementById("author").value);
+            formData.append("price", document.getElementById("price").value);
+            formData.append("offerPrice", document.getElementById("offerPrice").value);
+            formData.append("description", document.getElementById("description").value);
+            formData.append("category", document.getElementById("category").value); 
+            formData.append("image", document.getElementById("bookImage").files[0]);
+
+            const res = await fetch("/api/add-book", {
+                method: "POST",
+                body: formData
+            });
+
+            if (res.ok) alert("Book Uploaded!");
+            else alert("Error uploading book!");
+        });
+
+        function toggleSidebar() {
+            document.querySelector(".sidebar").classList.toggle("open");
+        }
+
+
+
+
+        document.addEventListener("DOMContentLoaded", function () {
+    const token = localStorage.getItem("token");
+
+    if (!token) {
+        window.location.href = "signup-login.html";  // Agar token nahi hai to login page pe redirect
+        return;
+    }
+
+  
+});
+
+    </script>
+</body>
+</html>
+       

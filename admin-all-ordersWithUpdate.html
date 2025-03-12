@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Admin Orders</title>
+    <style>
+          .imglogo {
+            width: 100px;
+            height: auto;
+            background-color: white;
+            margin: 0 9px;
+            border-radius: 10px;
+        }
+
+        .logo-container h2 {
+            margin-top: 38px;
+        }
+        .sidebar-toggle{
+            display: none;
+        }
+        /* deshboards */
+        .main-content {
+            margin-left: 270px;
+            padding: 20px;
+            width: calc(100% - 270px);
+        }
+    </style>
+</head>
+<body>
+    <h1>Admin Orders</h1>
+
+    <!-- 🔹 Date Filter -->
+    <label for="orderDate">Filter by Date:</label>
+    <input type="date" id="orderDate" onchange="fetchOrders()">
+
+    <table border="1">
+        <thead>
+            <tr>
+                <th>Order ID</th>
+                <th>Customer</th>
+                <th>Date</th>
+                <th>Status</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody id="orderTable"></tbody>
+    </table>
+
+    <script>
+        function formatDate(isoDate) {
+            const date = new Date(isoDate);
+            return `${date.getDate().toString().padStart(2, '0')}-${(date.getMonth() + 1).toString().padStart(2, '0')}-${date.getFullYear()}`;
+        }
+
+        async function fetchOrders() {
+            try {
+                const dateInput = document.getElementById("orderDate").value;
+                let apiUrl = `/admin/orders`;
+                
+                if (dateInput) {
+                    apiUrl += `?date=${dateInput}`; // 🔹 Backend ko date bhej rahe hain
+                }
+
+                const res = await fetch(apiUrl);
+                const orders = await res.json();
+
+                const table = document.getElementById("orderTable");
+                table.innerHTML = '';
+
+                orders.forEach(order => {
+                    const row = document.createElement("tr");
+
+                    row.innerHTML = `
+                        <td>${order._id}</td>
+                        <td>${order.deliveryDetails.fullName} (${order.deliveryDetails.mobile})</td>
+                        <td>${formatDate(order.createdAt)}</td>
+                        <td>${order.status}</td>
+                        <td>
+                            <select id="status-${order._id}">
+                                <option value="Pending" ${order.status === "Pending" ? "selected" : ""}>Pending</option>
+                                <option value="Shipped" ${order.status === "Shipped" ? "selected" : ""}>Shipped</option>
+                                <option value="Delivered" ${order.status === "Delivered" ? "selected" : ""}>Delivered</option>
+                            </select>
+                            <button onclick="updateOrder('${order._id}')">Update</button>
+                        </td>
+                    `;
+
+                    table.appendChild(row);
+                });
+            } catch (error) {
+                console.error("Error fetching orders:", error);
+            }
+        }
+
+        async function updateOrder(orderId) {
+            try {
+                const status = document.getElementById(`status-${orderId}`).value;
+
+                const res = await fetch(`/admin/order/${orderId}`, {
+                    method: "PUT",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ status })
+                });
+
+                if (!res.ok) {
+                    throw new Error("Failed to update order");
+                }
+
+                fetchOrders();
+            } catch (error) {
+                console.error("Error updating order:", error);
+            }
+        }
+
+        fetchOrders();
+    </script>
+</body>
+</html>

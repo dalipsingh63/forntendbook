@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Order Analytics</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+         body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f9;
+            margin: 0;
+            padding: 0;
+            color: #333;
+        }
+
+        h1 {
+            text-align: center;
+            font-size: 36px;
+            margin-top: 30px;
+            color: #005F5F;
+        }
+
+        h2 {
+            font-size: 28px;
+            margin-top: 40px;
+            text-align: center;
+            color: #333;
+        }
+
+        .chart-container {
+            width: 90%;
+            margin: 30px auto;
+            max-width: 900px;
+            padding: 20px;
+            border-radius: 10px;
+            background-color: #fff;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        canvas {
+            width: 100% !important;
+            height: 400px !important;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 28px;
+            }
+
+            h2 {
+                font-size: 24px;
+            }
+
+            .chart-container {
+                width: 100%;
+                margin-top: 20px;
+            }
+
+            canvas {
+                height: 300px !important;
+            }
+        }
+    </style>
+</head>
+<body>
+    <h1>Order Analytics</h1>
+    
+    <h2>Daily Orders</h2>
+    <canvas id="dailyChart"></canvas>
+    
+    <h2>Monthly Orders</h2>
+    <canvas id="monthlyChart"></canvas>
+
+    <h2>Yearly Orders</h2>
+    <canvas id="yearlyChart"></canvas>
+
+    <script>
+        async function fetchAnalytics() {
+            const res = await fetch('/admin/analytics');
+            const data = await res.json();
+
+            // Daily Orders Chart
+            const dailyLabels = data.dailyOrders.map(order => order._id);
+            const dailyValues = data.dailyOrders.map(order => order.count);
+            new Chart(document.getElementById('dailyChart'), {
+                type: 'bar',
+                data: {
+                    labels: dailyLabels,
+                    datasets: [{ label: 'Daily Orders', data: dailyValues, backgroundColor: 'blue' }]
+                }
+            });
+
+            // Monthly Orders Chart
+            const monthlyLabels = data.monthlyOrders.map(order => order._id);
+            const monthlyValues = data.monthlyOrders.map(order => order.count);
+            new Chart(document.getElementById('monthlyChart'), {
+                type: 'bar',
+                data: {
+                    labels: monthlyLabels,
+                    datasets: [{ label: 'Monthly Orders', data: monthlyValues, backgroundColor: 'green' }]
+                }
+            });
+
+            // Yearly Orders Chart
+            const yearlyLabels = data.yearlyOrders.map(order => order._id);
+            const yearlyValues = data.yearlyOrders.map(order => order.count);
+            new Chart(document.getElementById('yearlyChart'), {
+                type: 'bar',
+                data: {
+                    labels: yearlyLabels,
+                    datasets: [{ label: 'Yearly Orders', data: yearlyValues, backgroundColor: 'red' }]
+                }
+            });
+        }
+        fetchAnalytics();
+    </script>
+</body>
+</html>

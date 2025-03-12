@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Book Search</title>
+</head>
+<body>
+    <h2>Search Books</h2>
+    
+    <input type="text" id="searchInput" placeholder="Enter book title or author">
+    <button onclick="fetchBooks()">Search</button>
+
+    <h2>Book List</h2>
+    <ul id="bookList"></ul>
+
+    <script>
+        async function fetchBooks() {
+            const searchQuery = document.getElementById("searchInput").value.trim();
+            let url = "http://localhost:9000/SearchgetAllBooks"; // Apne backend ka correct URL dalna
+
+            if (searchQuery) {
+                url += `?search=${encodeURIComponent(searchQuery)}`;
+            }
+
+            try {
+                const response = await fetch(url);
+                const data = await response.json();
+
+                if (response.ok) {
+                    displayBooks(data.books);
+                } else {
+                    alert("Error fetching books: " + data.message);
+                }
+            } catch (error) {
+                console.error("Error:", error);
+                alert("Failed to fetch books");
+            }
+        }
+
+        function displayBooks(books) {
+            const bookList = document.getElementById("bookList");
+            bookList.innerHTML = "";
+
+            if (books.length === 0) {
+                bookList.innerHTML = "<li>No books found</li>";
+                return;
+            }
+
+            books.forEach(book => {
+                const li = document.createElement("li");
+                li.textContent = `${book.title} by ${book.author}`;
+                bookList.appendChild(li);
+            });
+        }
+
+        // Initial fetch to display all books when page loads
+        fetchBooks();
+    </script>
+</body>
+</html>

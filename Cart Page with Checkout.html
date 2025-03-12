@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Checkout</title>
+    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+    <style>
+              /* General Reset */
+              * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f8f9fa;
+            color: #333;
+            margin: 0;
+            padding: 0;
+        }
+
+        h2, h3 {
+            color:#005f5f;
+        }
+
+        /* Cart Container */
+        .cart-container {
+            width: 90%;
+            max-width: 900px;
+            margin: 40px auto;
+            background-color: #fff;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Table Styling */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        th, td {
+            padding: 12px;
+            border: 1px solid #ddd;
+            text-align: center;
+        }
+
+        th {
+            background-color: #f1f1f1;
+        }
+
+        .cart-item img {
+            width: 60px;
+            height: auto;
+            border-radius: 5px;
+        }
+
+        .cart-item p {
+            font-size: 14px;
+            margin-top: 10px;
+        }
+
+        /* Total Section */
+        h3 {
+            margin-top: 20px;
+            text-align: right;
+        }
+
+        /* Checkout Button */
+        #checkout {
+            display: block;
+            width: 100%;
+            padding: 12px;
+            background-color: #005f5f;
+            color: white;
+            font-size: 18px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-top: 30px;
+            transition: background-color 0.3s ease;
+        }
+
+        #checkout:hover {
+            background-color: #005f5f;
+        }
+
+        /* Delivery Form */
+        .delivery-form {
+            display: none;
+            margin-top: 40px;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+
+        .delivery-form label {
+            display: block;
+            margin: 10px 0;
+            font-size: 14px;
+        }
+
+        .delivery-form input {
+            width: 100%;
+            padding: 10px;
+            font-size: 14px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            margin-bottom: 15px;
+        }
+
+        .delivery-form button {
+            background-color: #007bff;
+            color: white;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+            width: 100%;
+        }
+
+        .delivery-form button:hover {
+            background-color: #0056b3;
+        }
+
+        /* Success Message */
+        .success-message {
+            display: none;
+            padding: 20px;
+            background-color: #005f5f;
+            color: white;
+            text-align: center;
+            border-radius: 8px;
+            margin-top: 30px;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .cart-container {
+                width: 95%;
+            }
+
+            table {
+                font-size: 14px;
+            }
+
+            .cart-item img {
+                width: 50px;
+            }
+
+            #checkout {
+                font-size: 16px;
+            }
+
+            .delivery-form input, .delivery-form button {
+                font-size: 14px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="cart-container">
+        <h2>Your Cart</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Book</th>
+                    <th>Price</th>
+                    <th>Quantity</th>
+                    <th>Total</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody id="cart-items"></tbody>
+        </table>
+        <h3>Total: ₹<span id="cart-total">0</span></h3>
+        <button id="checkout">Checkout</button>
+    </div>
+
+    <div id="delivery-form" class="delivery-form">
+        <h2>Enter Delivery Details</h2>
+        <label>Full Name: <input type="text" id="fullName" required></label><br>
+        <label>Mobile: <input type="text" id="mobile" required></label><br>
+        <label>Address: <input type="text" id="address" required></label><br>
+        <label>City: <input type="text" id="city" required></label><br>
+        <label>State: <input type="text" id="state" required></label><br>
+        <label>Pincode: <input type="text" id="pincode" required></label><br>
+        <button id="pay-now">Proceed to Payment</button>
+    </div>
+
+    <div id="success-message" class="success-message">
+        <h2>🎉 Order Placed Successfully!</h2>
+        <p>Thank you for your order.</p>
+    </div>
+
+    <script>
+        async function getRazorpayKey() {
+            let response = await fetch("http://localhost:9000/api/get-razorpay-key");
+            let data = await response.json();
+            return data.key;
+        }
+
+        function loadCart() {
+            let cart = JSON.parse(localStorage.getItem("cart")) || [];
+            const cartItems = document.getElementById("cart-items");
+            const cartTotal = document.getElementById("cart-total");
+            cartItems.innerHTML = "";
+            let totalAmount = 0;
+
+            cart.forEach((book, index) => {
+                let totalPrice = book.quantity * book.price;
+                totalAmount += totalPrice;
+                let row = document.createElement("tr");
+                row.innerHTML = `
+                    <td class="cart-item">
+                        <img src="${book.image || book.bookImage}" alt="${book.title}">
+                        <p>${book.title}</p>
+                    </td>
+                    <td>₹${book.price}</td>
+                    <td>${book.quantity}</td>
+                    <td>₹${totalPrice}</td>
+                    <td><button onclick="removeItem(${index})">Remove</button></td>
+                `;
+                cartItems.appendChild(row);
+            });
+            cartTotal.innerText = totalAmount;
+        }
+
+        function removeItem(index) {
+            let cart = JSON.parse(localStorage.getItem("cart")) || [];
+            cart.splice(index, 1);
+            localStorage.setItem("cart", JSON.stringify(cart));
+            loadCart();
+        }
+
+        document.getElementById("checkout").addEventListener("click", function() {
+            document.getElementById("delivery-form").style.display = "block";
+        });
+
+        document.getElementById("pay-now").addEventListener("click", async function() {
+            let cart = JSON.parse(localStorage.getItem("cart")) || [];
+            let totalAmount = parseFloat(document.getElementById("cart-total").innerText);
+            let deliveryDetails = {
+                fullName: document.getElementById("fullName").value,
+                mobile: document.getElementById("mobile").value,
+                address: document.getElementById("address").value,
+                city: document.getElementById("city").value,
+                state: document.getElementById("state").value,
+                pincode: document.getElementById("pincode").value
+            };
+
+            let response = await fetch("http://localhost:9000/api/create-order", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ cart, totalAmount, deliveryDetails })
+            });
+            let data = await response.json();
+            
+            let key = await getRazorpayKey();
+            if (data.orderId) {
+                let rzp = new Razorpay({
+                    key: key,
+                    amount: data.amount,
+                    currency: "INR",
+                    order_id: data.orderId,
+                    handler: function (response) {
+                        saveOrder(response.razorpay_payment_id, deliveryDetails, cart, totalAmount);
+                    }
+                });
+                rzp.open();
+            } else {
+                alert("Payment initiation failed");
+            }
+        });
+
+        async function saveOrder(paymentId, deliveryDetails, cart, totalAmount) {
+            let response = await fetch("http://localhost:9000/api/save-order", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ paymentId, deliveryDetails, cart, totalAmount })
+            });
+
+            let data = await response.json();
+            console.log("Backend Response:", data);
+
+            if (data.success) {
+                localStorage.removeItem("cart");
+                document.getElementById("success-message").style.display = "block";
+                document.querySelector(".cart-container").style.display = "none";
+                document.getElementById("delivery-form").style.display = "none";
+            } else {
+                console.error("Order save error:", data);
+                alert("Order save failed!");
+            }
+        }
+
+        loadCart();
+    </script>
+</body>
+</html>

@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Book Store</title>
+    <style>
+        /* General Styling */
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f9;
+            margin: 0;
+            padding: 20px;
+        }
+
+        h1 {
+            color: #005f5f; /* Main color */
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        /* Book Container */
+        .book-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            justify-content: center;
+        }
+
+        /* Book Card Styling */
+        .book-card {
+            border: 1px solid #ddd;
+            padding: 15px;
+            width: 200px;
+            text-align: center;
+            border-radius: 8px;
+            background-color: white;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease;
+        }
+
+        .book-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+        }
+
+        .book-card img {
+            width: 100px;
+            height: auto;
+            margin-bottom: 10px;
+        }
+
+        .book-card h3 {
+            font-size: 18px;
+            color: #005f5f; /* Main color */
+            margin-bottom: 10px;
+        }
+
+        .book-card p {
+            font-size: 16px;
+            color: #333;
+        }
+
+        .book-card p s {
+            color: #999;
+        }
+
+        .buttons {
+            margin-top: 10px;
+        }
+
+        .buttons button {
+            background-color: #005f5f; /* Main color */
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            cursor: pointer;
+            border-radius: 5px;
+            font-size: 14px;
+            transition: background-color 0.3s ease;
+        }
+
+        .buttons button:hover {
+            background-color: #004d4d; /* Darker shade of main color */
+        }
+
+        .buttons button:active {
+            background-color: #003e3e; /* Darker active state */
+        }
+    </style>
+</head>
+<body>
+    <h1>Available Books</h1>
+    <div class="book-container" id="book-list"></div>
+
+    <script>
+        async function fetchBooks() {
+            try {
+                const response = await fetch("http://localhost:9000/api/get-books"); // Backend URL
+                const books = await response.json();
+                const bookList = document.getElementById("book-list");
+                
+                books.forEach(book => {
+                    const bookCard = document.createElement("div");
+                    bookCard.classList.add("book-card");
+                    
+                    bookCard.innerHTML = `
+                        <img src="${book.bookImage}" alt="${book.title}">
+                        <h3>${book.title}</h3>
+                        <p>₹${book.offerPrice} <s>₹${book.price}</s></p>
+                        <div class="buttons">
+                            <button onclick="addToCart('${book._id}', '${book.title}', '${book.offerPrice}', '${book.bookImage}')">Add to Cart</button>
+                        </div>
+                    `;
+                    bookList.appendChild(bookCard);
+                });
+            } catch (error) {
+                console.error("Error fetching books:", error);
+            }
+        }
+
+        function addToCart(bookId, title, price, image) {
+            let cart = JSON.parse(localStorage.getItem("cart")) || [];
+
+            let existingBook = cart.find(book => book.id === bookId);
+
+            if (existingBook) {
+                existingBook.quantity += 1;  // Quantity badhao agar book already hai
+            } else {
+                cart.push({ id: bookId, title, price, image, quantity: 1 });
+            }
+
+            localStorage.setItem("cart", JSON.stringify(cart)); // Update localStorage
+            alert(`${title} added to cart!`);
+        }
+
+        fetchBooks();
+    </script>
+</body>
+</html>

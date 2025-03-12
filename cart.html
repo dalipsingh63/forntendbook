@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shopping Cart</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+    <link rel="stylesheet" href="./cart.css">
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="responsive.css">
+</head>
+
+<body>
+
+
+    <div class="col-sm-12 navbar">
+        <div class="col-sm-3 navbar-main">
+            <a href="index.html">
+                <div class="navbar-polygon">
+                    <img class="logo " src="./images/aravali_publication-removebg-preview.png" alt="">
+                </div>
+            </a>
+            <div class="navbar-poly"></div>
+        </div>
+        <div class="menu-toggle">
+            <i class="fas fa-bars"></i>
+        </div>
+        <div class="col-sm-3  nav-items">
+            <ul>
+                <li><i class="fa-solid fa-house"></i>Home</li>
+                <a href="./top seller.html">
+                    <li id="categoryBtn"><i class="fa-solid fa-list"></i>Category</li>
+                </a>
+                <li><i class="fa-regular fa-bookmark"></i>Top Seller</li>
+
+            </ul>
+        </div>
+        <div class="col-sm-3 search-container">
+            <input type="text" class="searchbar" placeholder="Search for books...">
+            <i id="searchicon" class="fas fa-search search-icon"></i>
+        </div>
+
+        <div class="col-sm-3 contactsupport">
+            <button class="SignUp"><i class="fas fa-user-plus"></i></button>
+            <button class="wish-list"><i class="fa-regular fa-heart"></i></button>
+            <a href="./cart.html">
+                <button class="Cart">
+                    <i class="fas fa-shopping-cart"></i>
+                    <span id="cart-count">0</span>
+                </button>
+            </a>
+        </div>
+    </div>
+
+    <h1>Your Shopping Cart</h1>
+
+    <div class="cart-container">
+        <table>
+            <thead>
+                <tr>
+                    <th>Book</th>
+                    <th>Price</th>
+                    <th>Quantity</th>
+                    <th>Total</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody id="cart-items">
+                <!-- Cart items will be dynamically added here -->
+            </tbody>
+        </table>
+        <h3>Total Amount: ₹<span id="cart-total">0</span></h3>
+        <button id="clear-cart">Buy Now</button>
+    </div>
+
+    <script src="./cart.js">
+
+    </script>
+
+</body>
+
+</html>

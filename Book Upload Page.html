@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Upload Book</title>
+    <style>
+        body { font-family: Arial, sans-serif; text-align: center; margin: 20px; }
+        h1 { color: #333; }
+        form { display: flex; flex-direction: column; align-items: center; }
+        input, textarea, select, button { margin: 10px; padding: 8px; }
+        button { background-color: #007bff; color: white; border: none; cursor: pointer; }
+    </style>
+</head>
+<body>
+    <h1>Upload New Book</h1>
+    <form id="book-form">
+        <input type="text" id="title" placeholder="Book Title" required>
+        <input type="text" id="author" placeholder="Author" required>
+        <input type="number" id="price" placeholder="Price" required>
+        <input type="number" id="offerPrice" placeholder="Offer Price">
+        <textarea id="description" placeholder="Description"></textarea>
+
+        <!-- ✅ Category dropdown added -->
+        <select id="category" required>
+            <option value="New">New</option>
+            <option value="Old">Old</option>
+            <option value="All">All</option>
+        </select>
+
+        <input type="file" id="bookImage" required>
+        <button type="submit">Upload</button>
+    </form>
+
+    <script>
+        document.getElementById("book-form").addEventListener("submit", async (e) => {
+            e.preventDefault();
+            const formData = new FormData();
+            formData.append("title", document.getElementById("title").value);
+            formData.append("author", document.getElementById("author").value);
+            formData.append("price", document.getElementById("price").value);
+            formData.append("offerPrice", document.getElementById("offerPrice").value);
+            formData.append("description", document.getElementById("description").value);
+            formData.append("category", document.getElementById("category").value); // ✅ Added Category
+            formData.append("image", document.getElementById("bookImage").files[0]);
+
+            const res = await fetch("/api/add-book", {
+                method: "POST",
+                body: formData
+            });
+
+            if (res.ok) alert("Book Uploaded!");
+            else alert("Error uploading book!");
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QR Code Scanner</title>
+    <script src="https://unpkg.com/html5-qrcode"></script> <!-- Scanner Library -->
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            background-color: #f4f4f9;
+            margin: 0;
+            padding: 0;
+        }
+        
+        h2 {
+            color: #333;
+            margin-top: 50px;
+            font-size: 28px;
+        }
+
+        button {
+            padding: 12px 25px;
+            font-size: 18px;
+            background-color:#005F5F;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            margin-top: 20px;
+        }
+
+        button:hover {
+            background-color: #005F5F;
+        }
+
+        #scanner-container {
+            margin: 20px auto;
+            width: 300px;
+            height: 300px;
+            border: 3px solid #005F5F;
+            display: none; /* Scanner initially hidden */
+            border-radius: 10px;
+        }
+
+        #result {
+            margin-top: 20px;
+            font-size: 18px;
+            font-weight: bold;
+            color: #333;
+            background-color: #fff;
+            padding: 10px;
+            border-radius: 5px;
+            width: 80%;
+            max-width: 400px;
+            margin: 20px auto;
+        }
+
+        .valid {
+            background-color: #e8f5e9;
+            color: #005F5F;
+        }
+
+        .invalid {
+            background-color: #fce4ec;
+            color: #d32f2f;
+        }
+
+        .error {
+            background-color: #fff3e0;
+            color: #f57c00;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            h2 {
+                font-size: 24px;
+            }
+
+            button {
+                width: 80%;
+                font-size: 16px;
+            }
+
+            #scanner-container {
+                width: 80%;
+                height: 200px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <h2>Scan Your Book's QR Code</h2>
+    
+    <!-- Button to Open Scanner -->
+    <button onclick="startScanner()">Scan QR Code</button>
+
+    <!-- Scanner Area -->
+    <div id="scanner-container"></div>
+
+    <!-- Result Display -->
+    <p id="result">Scan result will appear here...</p>
+
+    <script>
+        function startScanner() {
+            document.getElementById("scanner-container").style.display = "block"; // Show scanner area
+            
+            let scanner = new Html5QrcodeScanner(
+                "scanner-container", 
+                { fps: 10, qrbox: 250 } // FPS & Scanner Box Size
+            );
+
+            scanner.render(success, error);
+
+            async function success(qrCode) {
+                document.getElementById("result").innerText = "Scanning...";
+                scanner.clear(); // Scanner ko band karo
+                document.getElementById("scanner-container").style.display = "none"; // Hide scanner
+
+                try {
+                    let response = await fetch(`http://localhost:9000/api/validate/${qrCode}`);
+                    let data = await response.json();
+
+                    if (data.message === "Valid Book") {
+                        document.getElementById("result").innerHTML = "✅ Valid Book! Serial: " + data.serialNumber;
+                    } else {
+                        document.getElementById("result").innerHTML = "❌ Fake Book Detected!";
+                    }
+                } catch (error) {
+                    document.getElementById("result").innerText = "❌ Error Validating QR Code!";
+                }
+            }
+
+            function error(err) {
+                console.warn("Scan Error: ", err); // Ignore errors
+            }
+        }
+    </script>
+
+</body>
+</html>
